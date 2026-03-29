@@ -1,0 +1,108 @@
+# ─────────────────────────────────────────────────────────────
+# sensor-ticker-card — Example Lovelace configuration
+# ─────────────────────────────────────────────────────────────
+#
+# INSTALLATION
+# 1. Copy sensor-ticker-card.js to /config/www/sensor-ticker-card.js
+# 2. In HA → Settings → Dashboards → Resources, add:
+#      URL:  /local/sensor-ticker-card.js
+#      Type: JavaScript module
+# 3. Reload the browser (hard refresh).
+# 4. Add a card → Manual → paste config below.
+# ─────────────────────────────────────────────────────────────
+
+type: custom:sensor-ticker-card
+
+# ── Card appearance ───────────────────────────────────────────
+title: Sensor Feed          # Header text (set show_header: false to hide)
+show_header: true
+height: 280                 # Viewport height in px
+row_height: 36              # Height of each sensor row in px
+font_size: 14               # Font size in px
+scroll_speed: 2500          # Milliseconds between each row scroll
+separator: "···"            # Text between name and value
+
+# ── Sensors ───────────────────────────────────────────────────
+# Required: entity
+# Optional: name, unit, show_unavailable, show_if, conditions
+sensors:
+
+  # Basic sensor — uses HA friendly_name and unit automatically
+  - entity: sensor.living_room_temperature
+
+  # Override display name and unit
+  - entity: sensor.outside_temperature
+    name: Outside
+    unit: "°C"
+
+  # Conditional colour — warn above 80 %, danger above 95 %
+  - entity: sensor.cpu_usage
+    name: CPU
+    conditions:
+      - op: ">"
+        value: "80"
+        color: warn       # ok | warn | danger | normal
+      - op: ">"
+        value: "95"
+        color: danger     # last matching condition wins
+
+  # Binary sensor — highlight when door is open
+  - entity: binary_sensor.front_door
+    name: Front Door
+    conditions:
+      - op: "=="
+        value: "on"
+        color: warn
+
+  # Only show this row when the value is above a threshold
+  # (great for alerts you only want visible when relevant)
+  - entity: sensor.co2_office
+    name: Office CO₂
+    conditions:
+      - op: ">"
+        value: "1000"
+        color: warn
+      - op: ">"
+        value: "1500"
+        color: danger
+
+  # show_if: only include this row when another entity is in a state
+  # Useful for "only show boiler temp when heating is active"
+  - entity: sensor.boiler_temperature
+    name: Boiler
+    show_if:
+      entity: binary_sensor.heating_active
+      op: "=="
+      value: "on"
+
+  # show_unavailable: include row even when entity is unavailable
+  - entity: sensor.garage_temperature
+    name: Garage
+    show_unavailable: true
+
+  # Low battery alert
+  - entity: sensor.thermostat_battery
+    name: Thermostat Batt
+    conditions:
+      - op: "<"
+        value: "20"
+        color: danger
+
+# ─────────────────────────────────────────────────────────────
+# CONDITION OPERATORS
+#   >   greater than          (numeric)
+#   >=  greater than or equal (numeric)
+#   <   less than             (numeric)
+#   <=  less than or equal    (numeric)
+#   ==  equals                (string or numeric)
+#   !=  not equals            (string or numeric)
+#
+# COLORS
+#   normal   → primary-color (blue by default)
+#   ok       → success-color (green)
+#   warn     → warning-color (orange)
+#   danger   → error-color   (red)
+#
+# Multiple conditions are evaluated top-to-bottom;
+# the last matching condition sets the colour.
+# ─────────────────────────────────────────────────────────────

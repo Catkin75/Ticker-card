@@ -1,0 +1,7 @@
+{
+  "name": "Sensor Ticker Card",
+  "description": "Scrolling sensor ticker for Lovelace with conditional colour formatting.",
+  "render_readme": false,
+  "homeassistant": "2023.1.0",
+  "hacs": "1.6.0"
+}
